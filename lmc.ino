@@ -10,7 +10,6 @@ void setup() {
 
 void loop() {
   bool passed = mtm.intervalPassed();
-  Serial.println(passed);
   if (passed){
     if (ledState == LOW){
       ledState = HIGH;

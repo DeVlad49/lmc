@@ -4,7 +4,7 @@ Metronome::Metronome(unsigned long interval):
   m_interval(interval),
   m_lastMillis(0)
   {
-    Serial.begin(300);
+//    Serial.begin(300);
   }
 
 bool Metronome::intervalPassed(){
