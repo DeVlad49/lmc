@@ -4,7 +4,8 @@
 
 ## Components:
 * LED matrix 1088AS
-* PIR sensor
+* RTC DS3231
+* PIR sensor (put model name here)
 * temperature and humidity sensor DHT11
 
 ## External libraries:
