@@ -1,5 +1,7 @@
 # LED Matrix Clock project
 
+## See project notes [here]([url](https://docs.google.com/document/d/1wKCPI0wZZf8HCPCKJa1tOnIjr6q0EguBgRXOC0Ul9gY/edit?usp=sharing)).
+
 ## Components:
 * LED matrix 1088AS
 * PIR sensor
