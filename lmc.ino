@@ -82,7 +82,7 @@ void loop() {
 
 void displayText(String str){
   int strLen = str.length();
-  byte clockWidth = width * strLen;
+  int clockWidth = width * strLen;
   int x = (matrix.width() - clockWidth) / 2;
 
   byte digit  = 0;
