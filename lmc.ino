@@ -5,22 +5,25 @@
 #include <Adafruit_GFX.h>
 #include <Max72xxPanel.h>
 
-// Variables
-int ledState = LOW;
-char buffer[50]; // Буфер для зберігання рядка
-
+// Variables for setting up the LED matrix
 int pinCS = 10; // Attach CS to this pin, DIN to MOSI and CLK to SCK (cf http://arduino.cc/en/Reference/SPI )
 int numberOfHorizontalDisplays = 4;
 int numberOfVerticalDisplays = 1;
 
 Max72xxPanel matrix = Max72xxPanel(pinCS, numberOfHorizontalDisplays, numberOfVerticalDisplays);
 
-String tape = "Hello Vova";
-int wait = 40; // In milliseconds
-
+// Display-related variables
 int spacer = 1;
 int width = 5 + spacer; // The font width is 5 pixels
 int y = (matrix.height() - 8) / 2; // center the text vertically
+
+int wait = 40; // In milliseconds
+
+// Variables for blinking without delay
+int ledState = LOW;
+
+// Buffers for C-strings
+char buffer[50]; // Буфер для зберігання рядка
 
 // Objects
 Metronome mtm(1000);
@@ -32,8 +35,8 @@ void setup() {
 
   pinMode(LED_BUILTIN, OUTPUT);
 
-  //   Set time on system &  RTC
-//   Uncomment two lines below to set time
+  // Set time on system &  RTC
+  // Uncomment two lines below to set time
 
 //   setTime(23, 0, 25, 3, 3, 2025); // setTime(int hr,int min,int sec,int day, int month, int yr);
 //   rtc.set(now());
@@ -70,6 +73,7 @@ void loop() {
     sprintf(buffer, "Time on RTC: %02d:%02d:%02d %04d", hour(t), minute(t), second(t), year(t));
     Serial.println(buffer);
 
+    // Display time on LED matrix
     matrix.fillScreen(LOW);
     displayText(String(buffer));
     matrix.write(); // Send bitmap to display
@@ -78,13 +82,11 @@ void loop() {
 
 void displayText(String str){
   int strLen = str.length();
-//  byte clockWidth = width*(strLen-1) + 3;
   byte clockWidth = width * strLen;
   int x = (matrix.width() - clockWidth) / 2;
 
   byte digit  = 0;
 
-  // Display 2 digits
   while (digit < strLen){
     matrix.drawChar(x, y, str[digit], HIGH, LOW, 1);
     x += width;
