@@ -20,7 +20,9 @@ int y = (matrix.height() - 8) / 2; // center the text vertically
 int wait = 40; // In milliseconds
 
 // Buffers for C-strings
-char buffer[50]; // Буфер для зберігання рядка
+char timeBuffer[6];
+//char secondsBuffer[5];
+//char dateBuffer[11];
 
 // Objects
 Metronome mtm(1000);
@@ -53,28 +55,28 @@ void setup() {
 
 void loop() {
   bool passed = mtm.intervalPassed();
-  if (passed){
-
-    if (ledState == LOW){
-      
-    }else{
-      
-    }
+//  if (passed){}
     
 
+    // Store formatted time and date strings
+    time_t t = now();
+    sprintf(timeBuffer, "%02d:%02d", hour(t), minute(t));
+//    sprintf(secondsBuffer, "%02d s", second(t));
+//    sprintf(dateBuffer, "%02d.%02d.%04d", day(t), month(t), year(1));
+
     // Print time to Serial
-    time_t t = rtc.get();
-    sprintf(buffer, "Time on RTC: %02d:%02d:%02d %04d", hour(t), minute(t), second(t), year(t));
-    Serial.println(buffer);
+//    Serial.println(timeAndDateBuffer);
+    Serial.println(timeBuffer);
+//    Serial.println(secondsBuffer);
+//    Serial.println(dateBuffer);
 
     // Display time on LED matrix
     matrix.fillScreen(LOW);
-    displayText(String(buffer));
+    displayCentredText(String(timeBuffer));
     matrix.write(); // Send bitmap to display
-  }
 }
 
-void displayText(String str){
+void displayCentredText(String str){
   int strLen = str.length();
   int clockWidth = width * strLen;
   int x = (matrix.width() - clockWidth) / 2;
