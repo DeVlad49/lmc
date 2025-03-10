@@ -19,9 +19,6 @@ int y = (matrix.height() - 8) / 2; // center the text vertically
 
 int wait = 40; // In milliseconds
 
-// Variables for blinking without delay
-int ledState = LOW;
-
 // Buffers for C-strings
 char buffer[50]; // Буфер для зберігання рядка
 
@@ -32,8 +29,6 @@ DS3232RTC rtc;
 void setup() {
   Serial.begin(300);
   rtc.begin();
-
-  pinMode(LED_BUILTIN, OUTPUT);
 
   // Set time on system &  RTC
   // Uncomment two lines below to set time
@@ -60,13 +55,12 @@ void loop() {
   bool passed = mtm.intervalPassed();
   if (passed){
 
-    // Change LED state
     if (ledState == LOW){
-      ledState = HIGH;
+      
     }else{
-      ledState = LOW;
+      
     }
-    digitalWrite(LED_BUILTIN, ledState);
+    
 
     // Print time to Serial
     time_t t = rtc.get();
