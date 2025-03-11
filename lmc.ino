@@ -5,6 +5,8 @@
 #include <Adafruit_GFX.h>
 #include <Max72xxPanel.h>
 
+byte mode = 0;
+
 // Variables for setting up the LED matrix
 int pinCS = 10; // Attach CS to this pin, DIN to MOSI and CLK to SCK (cf http://arduino.cc/en/Reference/SPI )
 int numberOfHorizontalDisplays = 4;
@@ -22,14 +24,14 @@ int wait = 40; // In milliseconds
 // Buffers for C-strings
 char timeBuffer[6];
 //char secondsBuffer[5];
-//char dateBuffer[11];
+char dateBuffer[11];
 
 // Objects
-Metronome mtm(1000);
+Metronome mtm(10000);
 DS3232RTC rtc;
 
 void setup() {
-  Serial.begin(300);
+  Serial.begin(1200);
   rtc.begin();
 
   // Set time on system &  RTC
@@ -41,32 +43,28 @@ void setup() {
   // Synchronise system time with RTC time
   setSyncProvider(rtc.get);   // the function to get the time from the RTC
 
-  if(timeStatus() != timeSet)
+  if(timeStatus() != timeSet){
       Serial.println("Unable to sync with the RTC");
-  else
+  }else{
       Serial.println("RTC has set the system time");
+  }
 
   // When connections are on the left
   for (byte i = 0; i<5; i++){
     matrix.setRotation(i, 1);
   }
-
 }
 
 void loop() {
-  bool passed = mtm.intervalPassed();
-//  if (passed){}
-    
-
     // Store formatted time and date strings
     time_t t = now();
     sprintf(timeBuffer, "%02d:%02d", hour(t), minute(t));
 //    sprintf(secondsBuffer, "%02d s", second(t));
-//    sprintf(dateBuffer, "%02d.%02d.%04d", day(t), month(t), year(1));
+    sprintf(dateBuffer, "%02d.%02d.%04d", day(t), month(t), year(1));
 
     // Print time to Serial
 //    Serial.println(timeAndDateBuffer);
-    Serial.println(timeBuffer);
+//    Serial.println(timeBuffer);
 //    Serial.println(secondsBuffer);
 //    Serial.println(dateBuffer);
 
@@ -74,6 +72,25 @@ void loop() {
     matrix.fillScreen(LOW);
     displayCentredText(String(timeBuffer));
     matrix.write(); // Send bitmap to display
+
+  bool passed = mtm.intervalPassed();
+  if (passed){
+    mode++;
+    if(mode>1){
+      mode = 0;
+    }
+  }
+  switch(mode){
+    case 0:
+      Serial.println(timeBuffer);
+      break;
+    case 1:
+      Serial.println(dateBuffer);
+      break;
+    default:
+      Serial.println("Err");
+      break;
+  }
 }
 
 void displayCentredText(String str){
