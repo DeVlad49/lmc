@@ -27,7 +27,7 @@ char timeBuffer[6];
 char dateBuffer[11];
 
 // Objects
-Metronome mtm(10000);
+Metronome mtm(5000);
 DS3232RTC rtc;
 
 void setup() {
@@ -56,41 +56,41 @@ void setup() {
 }
 
 void loop() {
-    // Store formatted time and date strings
-    time_t t = now();
-    sprintf(timeBuffer, "%02d:%02d", hour(t), minute(t));
+  // Store formatted time and date strings
+  time_t t = now();
+  sprintf(timeBuffer, "%02d:%02d", hour(t), minute(t));
 //    sprintf(secondsBuffer, "%02d s", second(t));
-    sprintf(dateBuffer, "%02d.%02d.%04d", day(t), month(t), year(1));
+  sprintf(dateBuffer, "%02d.%02d.%04d", day(t), month(t), year(1));
 
-    // Print time to Serial
-//    Serial.println(timeAndDateBuffer);
-//    Serial.println(timeBuffer);
-//    Serial.println(secondsBuffer);
-//    Serial.println(dateBuffer);
-
-    // Display time on LED matrix
-    matrix.fillScreen(LOW);
-    displayCentredText(String(timeBuffer));
-    matrix.write(); // Send bitmap to display
-
+  // Display time on LED matrix
+  // Checking if the time passed.
+  // If it did, then change display mode
   bool passed = mtm.intervalPassed();
   if (passed){
     mode++;
-    if(mode>1){
-      mode = 0;
-    }
+    Serial.println(mode);
   }
+  if(mode>1){
+    mode = 0;
+  }
+  // Clear screen (i suppose)
+  matrix.fillScreen(LOW);
   switch(mode){
     case 0:
       Serial.println(timeBuffer);
+      displayCentredText(String(timeBuffer));
       break;
     case 1:
       Serial.println(dateBuffer);
+      displayCentredText(String(dateBuffer));
       break;
     default:
       Serial.println("Err");
+      displayCentredText(String("Err"));
       break;
   }
+  // Send bitmap to display
+  matrix.write();
 }
 
 void displayCentredText(String str){
