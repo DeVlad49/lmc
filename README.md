@@ -4,7 +4,7 @@
 See [here](https://docs.google.com/document/d/1wKCPI0wZZf8HCPCKJa1tOnIjr6q0EguBgRXOC0Ul9gY/edit?usp=sharing).
 
 ## Components:
-* 4 LED matrix 1088AS
+* 4 LED matrix 1088AS (with MAX7219 driver)
 
   The 4 LED matrixes are arranged in a single row. So the display is 8 px high and 8*4=32 px wide.
 
