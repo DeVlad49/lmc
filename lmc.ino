@@ -37,7 +37,7 @@ void setup() {
   // Set time on system &  RTC
   // Uncomment two lines below to set time
 
-//   setTime(23, 0, 25, 3, 3, 2025); // setTime(int hr,int min,int sec,int day, int month, int yr);
+//   setTime(14, 57, 0, 20, 3, 25); // setTime(int hr,int min,int sec,int day, int month, int yr);
 //   rtc.set(now());
 
   // Synchronise system time with RTC time
@@ -60,7 +60,7 @@ void loop() {
   time_t t = now();
   sprintf(timeBuffer, "%02d:%02d", hour(t), minute(t));
 //    sprintf(secondsBuffer, "%02d s", second(t));
-  sprintf(dateBuffer, "%02d.%02d.%04d", day(t), month(t), year(1));
+  sprintf(dateBuffer, "%02d.%02d.%04d", day(t), month(t), year(t));
 
   // Display time on LED matrix
   // Checking if the time passed.
