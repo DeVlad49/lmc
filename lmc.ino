@@ -6,7 +6,7 @@
 #include <Max72xxPanel.h>
 #include <dht.h>
 
-#define DHT11_PIN 5
+#define DHT11_PIN 9
 
 byte mode = 0;
 
