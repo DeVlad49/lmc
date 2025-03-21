@@ -4,6 +4,9 @@
 #include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <Max72xxPanel.h>
+#include <dht.h>
+
+#define DHT11_PIN 5
 
 byte mode = 0;
 
@@ -25,10 +28,13 @@ int wait = 40; // In milliseconds
 char timeBuffer[6];
 //char secondsBuffer[5];
 char dateBuffer[11];
+char tempBuffer[6];
+char humiBuffer[6];
 
 // Objects
 Metronome mtm(5000);
 DS3232RTC rtc;
+dht DHT;
 
 void setup() {
   Serial.begin(1200);
@@ -62,6 +68,11 @@ void loop() {
 //    sprintf(secondsBuffer, "%02d s", second(t));
   sprintf(dateBuffer, "%02d.%02d.%04d", day(t), month(t), year(t));
 
+  // Store formatted temperature and humidity
+  int chk = DHT.read11(DHT11_PIN);
+  sprintf(tempBuffer, "t:%dC", int(DHT.temperature));
+  sprintf(humiBuffer, "h:%d%%", int(DHT.humidity));
+
   // Display time on LED matrix
   // Checking if the time passed.
   // If it did, then change display mode
@@ -70,7 +81,7 @@ void loop() {
     mode++;
     Serial.println(mode);
   }
-  if(mode>1){
+  if(mode>3){
     mode = 0;
   }
   // Clear screen (i suppose)
@@ -83,6 +94,14 @@ void loop() {
     case 1:
       Serial.println(dateBuffer);
       displayCentredText(String(dateBuffer));
+      break;
+    case 2:
+      Serial.println(tempBuffer);
+      displayCentredText(String(tempBuffer));
+      break;
+    case 3:
+      Serial.println(humiBuffer);
+      displayCentredText(String(humiBuffer));
       break;
     default:
       Serial.println("Err");
