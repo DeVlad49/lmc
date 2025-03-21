@@ -16,4 +16,6 @@ See [here](https://docs.google.com/document/d/1wKCPI0wZZf8HCPCKJa1tOnIjr6q0EguBg
 ### For LED matrix:
 * [Max72xxPanel](https://github.com/markruys/arduino-Max72xxPanel)
 * [Adafruit GFX](https://github.com/adafruit/Adafruit-GFX-Library) (used in previous library)
-* [Adafruit Bus IO](https://github.com/adafruit/Adafruit_BusIO) (for some versions of Arduino IDE)
+* [DHTlib](https://github.com/RobTillaart/DHTlib)
+* [RTClib](https://github.com/adafruit/RTClib)
+* [Adafruit Bus IO](https://github.com/adafruit/Adafruit_BusIO) (used by RTClib; not installed in some versions of Arduino IDE)
