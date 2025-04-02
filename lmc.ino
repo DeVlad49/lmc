@@ -7,8 +7,14 @@
 #include <dht.h>
 
 #define DHT11_PIN 9
+#define PIR_PIN 8
+#define POWER_DPIN 7
+#define MODE_SWITCH_DELAY 10000
 
 byte mode = 0;
+byte lastMode = 3;
+int pirState = LOW;
+int pirValue = 0;
 
 // Variables for setting up the LED matrix
 int pinCS = 10; // Attach CS to this pin, DIN to MOSI and CLK to SCK (cf http://arduino.cc/en/Reference/SPI )
@@ -32,13 +38,17 @@ char tempBuffer[6];
 char humiBuffer[6];
 
 // Objects
-Metronome mtm(5000);
+Metronome mtm(MODE_SWITCH_DELAY);
 DS3232RTC rtc;
 dht DHT;
 
 void setup() {
   Serial.begin(1200);
   rtc.begin();
+
+  pinMode(PIR_PIN, INPUT);
+  pinMode(POWER_DPIN, OUTPUT);
+  digitalWrite(POWER_DPIN, HIGH);
 
   // Set time on system &  RTC
   // Uncomment two lines below to set time
@@ -62,6 +72,7 @@ void setup() {
 }
 
 void loop() {
+
   // Store formatted time and date strings
   time_t t = now();
   sprintf(timeBuffer, "%02d:%02d", hour(t), minute(t));
@@ -79,34 +90,53 @@ void loop() {
   bool passed = mtm.intervalPassed();
   if (passed){
     mode++;
-    Serial.println(mode);
+//    Serial.println(mode);
   }
+
+  // Checking if PIR is active
+  pirValue = digitalRead(PIR_PIN);
+  if (pirValue == HIGH){
+    if (pirState == LOW){
+      Serial.println("Motion detected!");
+      pirState = HIGH;
+      mode++;
+    }
+  }else{
+    if (pirState == HIGH){
+      Serial.println("Motion ended!");
+      pirState = LOW;
+    }
+  }
+
   if(mode>3){
     mode = 0;
   }
-  // Clear screen (i suppose)
-  matrix.fillScreen(LOW);
-  switch(mode){
-    case 0:
-      Serial.println(timeBuffer);
-      displayCentredText(String(timeBuffer));
-      break;
-    case 1:
-      Serial.println(dateBuffer);
-      displayCentredText(String(dateBuffer));
-      break;
-    case 2:
-      Serial.println(tempBuffer);
-      displayCentredText(String(tempBuffer));
-      break;
-    case 3:
-      Serial.println(humiBuffer);
-      displayCentredText(String(humiBuffer));
-      break;
-    default:
-      Serial.println("Err");
-      displayCentredText(String("Err"));
-      break;
+
+  if (mode != lastMode){
+    matrix.fillScreen(LOW);
+    switch(mode){
+      case 0:
+        Serial.println(timeBuffer);
+        displayCentredText(String(timeBuffer));
+        break;
+      case 1:
+        Serial.println(dateBuffer);
+        displayCentredText(String(dateBuffer));
+        break;
+      case 2:
+        Serial.println(tempBuffer);
+        displayCentredText(String(tempBuffer));
+        break;
+      case 3:
+        Serial.println(humiBuffer);
+        displayCentredText(String(humiBuffer));
+        break;
+      default:
+        Serial.println("Err");
+        displayCentredText(String("Err"));
+        break;
+    }
+    lastMode = mode;
   }
   // Send bitmap to display
   matrix.write();
