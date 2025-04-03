@@ -2,9 +2,9 @@
 #include <DS3232RTC.h> // https://github.com/JChristensen/DS3232RTC
 #include <TimeLib.h> // https://github.com/PaulStoffregen/Time
 #include <SPI.h>
-#include <Adafruit_GFX.h>
-#include <Max72xxPanel.h>
-#include <dht.h>
+#include <Adafruit_GFX.h> // https://github.com/adafruit/Adafruit-GFX-Library
+#include <Max72xxPanel.h> // https://github.com/markruys/arduino-Max72xxPanel
+#include <dht.h> // https://github.com/RobTillaart/DHTlib
 
 #define DHT11_PIN 9
 #define PIR_PIN 8
