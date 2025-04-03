@@ -20,6 +20,14 @@ bool Metronome::intervalPassed(){
   }
 }
 
+void Metronome::reset(){
+  m_lastMillis = millis();;
+}
+
 unsigned long Metronome::getLastMillis(){
   return m_lastMillis;
+}
+
+unsigned long Metronome::getPassedTime(){
+  return millis() - m_lastMillis;
 }

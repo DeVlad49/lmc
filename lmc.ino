@@ -100,6 +100,7 @@ void loop() {
       Serial.println("Motion detected!");
       pirState = HIGH;
       mode++;
+      mtm.reset();
     }
   }else{
     if (pirState == HIGH){
