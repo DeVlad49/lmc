@@ -8,7 +8,7 @@
 
 #define DHT11_PIN 9
 #define PIR_PIN 8
-#define POWER_DPIN 7
+//#define POWER_DPIN 7 // For Uno only
 #define MODE_SWITCH_DELAY 10000
 
 byte mode = 0;
@@ -47,8 +47,8 @@ void setup() {
   rtc.begin();
 
   pinMode(PIR_PIN, INPUT);
-  pinMode(POWER_DPIN, OUTPUT);
-  digitalWrite(POWER_DPIN, HIGH);
+//  pinMode(POWER_DPIN, OUTPUT); // For Uno only
+//  digitalWrite(POWER_DPIN, HIGH); // For Uno only
 
   // Set time on system &  RTC
   // Uncomment two lines below to set time
