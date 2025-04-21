@@ -1,4 +1,5 @@
 #include "Metronome.h"
+#include "Photoresistor.h"
 #include <DS3232RTC.h> // https://github.com/JChristensen/DS3232RTC
 #include <TimeLib.h> // https://github.com/PaulStoffregen/Time
 #include <SPI.h>
@@ -7,14 +8,13 @@
 #include <dht.h> // https://github.com/RobTillaart/DHTlib
 
 #define DHT11_PIN 9
-#define PIR_PIN 8
-//#define POWER_DPIN 7 // For Uno only
+#define LED_PIN 8 // D13 is already used by SPI, so choose different OUTPUT pin
 #define MODE_SWITCH_DELAY 10000
+#define REGULAR_THRESHOLD_UPDATE_PERIOD 20000
 
 byte mode = 0;
 byte lastMode = 3;
-int pirState = LOW;
-int pirValue = 0;
+bool ledIsLit = false;
 
 // Variables for setting up the LED matrix
 int pinCS = 10; // Attach CS to this pin, DIN to MOSI and CLK to SCK (cf http://arduino.cc/en/Reference/SPI )
@@ -39,16 +39,14 @@ char humiBuffer[6];
 
 // Objects
 Metronome mtm(MODE_SWITCH_DELAY);
+Metronome rtu_mtm(REGULAR_THRESHOLD_UPDATE_PERIOD); // regular threshold update
+Photoresistor pr(A0, 6);
 DS3232RTC rtc;
 dht DHT;
 
 void setup() {
   Serial.begin(1200);
   rtc.begin();
-
-  pinMode(PIR_PIN, INPUT);
-//  pinMode(POWER_DPIN, OUTPUT); // For Uno only
-//  digitalWrite(POWER_DPIN, HIGH); // For Uno only
 
   // Set time on system &  RTC
   // Uncomment two lines below to set time
@@ -65,10 +63,17 @@ void setup() {
       Serial.println("RTC has set the system time");
   }
 
+  // Setting a threshold for photoresistor
+
+  pr.updateThreshold();
+
   // When connections are on the left
   for (byte i = 0; i<5; i++){
     matrix.setRotation(i, 1);
   }
+
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
 }
 
 void loop() {
@@ -93,21 +98,30 @@ void loop() {
 //    Serial.println(mode);
   }
 
-  // Checking if PIR is active
-  pirValue = digitalRead(PIR_PIN);
-  if (pirValue == HIGH){
-    if (pirState == LOW){
-      Serial.println("Motion detected!");
-      pirState = HIGH;
-      mode++;
-      mtm.reset();
+  // Checking if photoresistor is covered
+
+  // Regularly update average environmental brightness value
+  if (rtu_mtm.intervalPassed()){
+    pr.updateThreshold();
+    rtu_mtm.reset();
+  }
+
+  if (pr.isCoveredInLessThanTimePeriod()){
+    Serial.println("CHANGING DISPLAY MODE");
+    mode++;
+    mtm.reset();
+
+    if (!ledIsLit){
+      ledIsLit = true;
+      digitalWrite(LED_PIN, HIGH);
     }
-  }else{
-    if (pirState == HIGH){
-      Serial.println("Motion ended!");
-      pirState = LOW;
+    else{
+      ledIsLit = false;
+      digitalWrite(LED_PIN, LOW);
     }
   }
+
+  // Switching display modes
 
   if(mode>3){
     mode = 0;
