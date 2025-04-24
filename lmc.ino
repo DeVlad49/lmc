@@ -1,3 +1,9 @@
+#include <Adafruit_BusIO_Register.h>
+#include <Adafruit_GenericDevice.h>
+#include <Adafruit_I2CDevice.h>
+#include <Adafruit_I2CRegister.h>
+#include <Adafruit_SPIDevice.h>
+
 #include "Metronome.h"
 #include "Photoresistor.h"
 #include <DS3232RTC.h> // https://github.com/JChristensen/DS3232RTC
@@ -40,7 +46,7 @@ char humiBuffer[6];
 // Objects
 Metronome mtm(MODE_SWITCH_DELAY);
 Metronome rtu_mtm(REGULAR_THRESHOLD_UPDATE_PERIOD); // regular threshold update
-Photoresistor pr(A0, 6);
+Photoresistor pr(A0, 60);
 DS3232RTC rtc;
 dht DHT;
 
@@ -106,7 +112,7 @@ void loop() {
     rtu_mtm.reset();
   }
 
-  if (pr.isCoveredInLessThanTimePeriod()){
+  if (pr.isCoveredInLessThanTimePeriod(700, true)){
     Serial.println("CHANGING DISPLAY MODE");
     mode++;
     mtm.reset();
