@@ -13,11 +13,25 @@
 #include <Max72xxPanel.h> // https://github.com/markruys/arduino-Max72xxPanel
 #include <dht.h> // https://github.com/RobTillaart/DHTlib
 
+// For debugging
+#define VERBOSE_PHOTORESISTOR false
+#define VERBOSE_BUFFERS true
+
 #define DHT11_PIN 9
 #define LED_PIN 8 // D13 is already used by SPI, so choose different OUTPUT pin
+
 #define MODE_SWITCH_DELAY 10000
+
+#define BRIGHTNESS_DROP_PERCENTAGE 20
 #define REGULAR_THRESHOLD_UPDATE_PERIOD 20000
 
+// Throbber-related variables
+#define THROBBER_INNER_RADIUS 4
+#define THROBBER_OUTER_RADIUS 8
+#define ANGLE_STEP 30
+int angle = 0;
+
+// Display mode variables
 byte mode = 0;
 byte lastMode = 3;
 bool ledIsLit = false;
@@ -34,8 +48,6 @@ int spacer = 1;
 int width = 5 + spacer; // The font width is 5 pixels
 int y = (matrix.height() - 8) / 2; // center the text vertically
 
-int wait = 40; // In milliseconds
-
 // Buffers for C-strings
 char timeBuffer[6];
 //char secondsBuffer[5];
@@ -46,9 +58,12 @@ char humiBuffer[6];
 // Objects
 Metronome mtm(MODE_SWITCH_DELAY);
 Metronome rtu_mtm(REGULAR_THRESHOLD_UPDATE_PERIOD); // regular threshold update
-Photoresistor pr(A0, 60);
+Photoresistor pr(A0, BRIGHTNESS_DROP_PERCENTAGE);
 DS3232RTC rtc;
 dht DHT;
+
+// Declaring functions
+void updateLightSensorSensitivity(unsigned long period = 1000);
 
 void setup() {
   Serial.begin(1200);
@@ -62,22 +77,21 @@ void setup() {
 
   // Synchronise system time with RTC time
   setSyncProvider(rtc.get);   // the function to get the time from the RTC
-
   if(timeStatus() != timeSet){
       Serial.println("Unable to sync with the RTC");
   }else{
       Serial.println("RTC has set the system time");
   }
 
-  // Setting a threshold for photoresistor
-
-  pr.updateThreshold();
-
-  // When connections are on the left
+  // When matrix connections are on the left
   for (byte i = 0; i<5; i++){
     matrix.setRotation(i, 1);
   }
 
+  // Setting a threshold for photoresistor
+  updateLightSensorSensitivity();
+
+  // LED indicator
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, LOW);
 }
@@ -98,8 +112,7 @@ void loop() {
   // Display time on LED matrix
   // Checking if the time passed.
   // If it did, then change display mode
-  bool passed = mtm.intervalPassed();
-  if (passed){
+  if (mtm.intervalPassed()){
     mode++;
 //    Serial.println(mode);
   }
@@ -108,15 +121,16 @@ void loop() {
 
   // Regularly update average environmental brightness value
   if (rtu_mtm.intervalPassed()){
-    pr.updateThreshold();
+    updateLightSensorSensitivity();
     rtu_mtm.reset();
   }
 
-  if (pr.isCoveredInLessThanTimePeriod(700, true)){
+  if (pr.isCoveredInLessThanTimePeriod(700, VERBOSE_PHOTORESISTOR)){
     Serial.println("CHANGING DISPLAY MODE");
     mode++;
     mtm.reset();
 
+    // Changing LED state
     if (!ledIsLit){
       ledIsLit = true;
       digitalWrite(LED_PIN, HIGH);
@@ -159,6 +173,7 @@ void loop() {
     }
     lastMode = mode;
   }
+  
   // Send bitmap to display
   matrix.write();
 }
@@ -175,4 +190,43 @@ void displayCentredText(String str){
     x += width;
     digit++;
   }
+}
+
+void updateLightSensorSensitivity(unsigned long period = 1000){
+  Serial.println("Updating environmental brightness... ");
+  
+  unsigned long startTime = millis();
+  long sum = 0;
+  int sampleCount = 0;
+
+  while (millis() - startTime < period) {
+    sum += pr.read();
+    sampleCount++;
+
+    drawThrobber(THROBBER_INNER_RADIUS, THROBBER_OUTER_RADIUS, angle);
+    angle = (angle + ANGLE_STEP) % 360;
+    
+    delay(50);
+  }
+  pr.setEnvironmentalBrightness(int(sum / sampleCount), VERBOSE_PHOTORESISTOR);
+  pr.updateThreshold(VERBOSE_PHOTORESISTOR);
+  Serial.println("Done!");
+}
+
+void drawThrobber(int innerRadius, int outerRadius, int degrees){
+  int centerX = matrix.width() / 2;
+  int centerY = matrix.height() / 2 - 1;
+
+  float radians = degrees * DEG_TO_RAD;
+  
+  int innerX = innerRadius * cos(radians);
+  int innerY =  innerRadius * sin(radians);
+  
+  int outerX = outerRadius * cos(radians);
+  int outerY =  outerRadius * sin(radians);
+  
+  matrix.fillScreen(LOW);
+  matrix.writeLine(centerX + innerX, centerY + innerY, 
+                   centerX + outerX, centerY + outerY, 1);
+  matrix.write();
 }

@@ -19,8 +19,14 @@ class Photoresistor {
       unsigned long m_lastDuration = 0;
   public:
     Photoresistor(int analogPin, byte dropPercent);
-    int updateEnvironmentalBrightness(unsigned long measurementTime);
-    void updateThreshold(unsigned long measurementTime = 3000);
+
+    void setEnvironmentalBrightness(int brightness, bool verbose = false);
+    int getEnvironmentalBrightness();
+    void updateEnvironmentalBrightness(unsigned long measurementTime);
+
+    int getThreshold();
+    void updateThreshold(bool verbose = false);
+    
     int read();
     bool isDark();
     bool isCoveredInLessThanTimePeriod(unsigned long timePeriod = 1000, bool verbose = false);

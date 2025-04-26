@@ -5,7 +5,19 @@ Photoresistor::Photoresistor(int analogPin, byte dropPercent) {
   m_brightnessDrop = float(dropPercent) / 100.0;
 }
 
-int Photoresistor::updateEnvironmentalBrightness(unsigned long measurementTime) {
+void Photoresistor::setEnvironmentalBrightness(int brightness, bool verbose){
+  m_environmentalBrightness = brightness;
+  if (verbose){
+    Serial.print("UPDATED ENVIRONMENTAL BRIGHTNESS: ");
+    Serial.println(m_environmentalBrightness);
+  }
+}
+
+int Photoresistor::getEnvironmentalBrightness(){
+  return m_environmentalBrightness;
+}
+
+void Photoresistor::updateEnvironmentalBrightness(unsigned long measurementTime) {
   long sum = 0;
   unsigned long startTime = millis();
   int sampleCount = 0;
@@ -13,19 +25,23 @@ int Photoresistor::updateEnvironmentalBrightness(unsigned long measurementTime) 
   while (millis() - startTime < measurementTime) {
     sum += analogRead(m_pin);
     sampleCount++;
-    // here you can indicate the process
     delay(50);
-    // Here you can turn LED off
   }
 
-  return sum / sampleCount;
+  m_environmentalBrightness = sum / sampleCount;
 }
 
-void Photoresistor::updateThreshold(unsigned long measurementTime) {
-  Serial.println("Updating environmental brightness... ");
-  int brightness = updateEnvironmentalBrightness(measurementTime);
-  m_threshold = int(float (brightness) * (1 - m_brightnessDrop));
-  Serial.println("Done!");
+int Photoresistor::getThreshold(){
+  return m_threshold;
+}
+
+void Photoresistor::updateThreshold(bool verbose) {
+  m_threshold = int(float (m_environmentalBrightness) * (1 - m_brightnessDrop));
+  if (verbose){
+    Serial.print("UPDATED THRESHOLD: ");
+    Serial.println(m_threshold);
+  }
+  
 }
 
 int Photoresistor::read() {
@@ -41,15 +57,21 @@ bool Photoresistor::isCoveredInLessThanTimePeriod(unsigned long timePeriod, bool
   if (isDark() && !m_covered){
     m_covered = true;
     m_coverStart = millis();
-    if (verbose) Serial.println("Covered!");
+    if (verbose){
+      Serial.print("Covered: ");
+      Serial.println(read());
+    }
   }
   else if (isDark() && m_covered){
-    if (verbose) Serial.println("Covered. Won't react.");
+    if (verbose) Serial.print("Covered: ");
+      Serial.print(read());
+      Serial.println(" ; Won't react.");
   }
   else if (!isDark() && m_covered){
     m_covered = false;
     m_coverEnd = millis();
-    if (verbose) Serial.println("It is bright again! ");
+    if (verbose) Serial.print("It is bright again: ");
+    Serial.println(read());
   
     if (m_coverEnd - m_coverStart < timePeriod){
       if (verbose){
@@ -70,7 +92,11 @@ bool Photoresistor::isCoveredInLessThanTimePeriod(unsigned long timePeriod, bool
     }
   }
   else if (!isDark() && !m_covered){
-    if (verbose) Serial.println("Uncovered. Won't react");
+    if (verbose){
+      Serial.print("Uncovered: ");
+      Serial.print(read());
+      Serial.println(" ; Won't react");
+    }
   }
   return false;
 }
