@@ -13,17 +13,15 @@
 #include <Max72xxPanel.h> // https://github.com/markruys/arduino-Max72xxPanel
 #include <dht.h> // https://github.com/RobTillaart/DHTlib
 
-// For debugging
-#define VERBOSE_PHOTORESISTOR false
-#define VERBOSE_BUFFERS true
-
+// Pins
 #define DHT11_PIN 9
 #define LED_PIN 8 // D13 is already used by SPI, so choose different OUTPUT pin
 
-#define MODE_SWITCH_DELAY 10000
-
+// For the light sensor
 #define BRIGHTNESS_DROP_PERCENTAGE 20
 #define REGULAR_THRESHOLD_UPDATE_PERIOD 20000
+#define COVERING_TIME_PERIOD 1000
+#define VERBOSE_PHOTORESISTOR false
 
 // Throbber-related variables
 #define THROBBER_INNER_RADIUS 4
@@ -34,7 +32,9 @@ int angle = 0;
 // Display mode variables
 byte mode = 0;
 byte lastMode = 3;
+bool changeMode = false;
 bool ledIsLit = false;
+#define MODE_SWITCH_DELAY 10000
 
 // Variables for setting up the LED matrix
 int pinCS = 10; // Attach CS to this pin, DIN to MOSI and CLK to SCK (cf http://arduino.cc/en/Reference/SPI )
@@ -54,6 +54,7 @@ char timeBuffer[6];
 char dateBuffer[11];
 char tempBuffer[6];
 char humiBuffer[6];
+#define VERBOSE_BUFFERS true
 
 // Objects
 Metronome mtm(MODE_SWITCH_DELAY);
@@ -66,6 +67,7 @@ dht DHT;
 void updateLightSensorSensitivity(unsigned long period = 1000);
 
 void setup() {
+
   Serial.begin(1200);
   rtc.begin();
 
@@ -125,7 +127,7 @@ void loop() {
     rtu_mtm.reset();
   }
 
-  if (pr.isCoveredInLessThanTimePeriod(700, VERBOSE_PHOTORESISTOR)){
+  if (pr.isCoveredInLessThanTimePeriod(COVERING_TIME_PERIOD, VERBOSE_PHOTORESISTOR)){
     Serial.println("CHANGING DISPLAY MODE");
     mode++;
     mtm.reset();
@@ -148,6 +150,10 @@ void loop() {
   }
 
   if (mode != lastMode){
+    changeMode = true;
+  }
+
+  if (changeMode){
     matrix.fillScreen(LOW);
     switch(mode){
       case 0:
@@ -172,6 +178,7 @@ void loop() {
         break;
     }
     lastMode = mode;
+    changeMode = false;
   }
   
   // Send bitmap to display
@@ -211,6 +218,7 @@ void updateLightSensorSensitivity(unsigned long period = 1000){
   pr.setEnvironmentalBrightness(int(sum / sampleCount), VERBOSE_PHOTORESISTOR);
   pr.updateThreshold(VERBOSE_PHOTORESISTOR);
   Serial.println("Done!");
+  changeMode = true;
 }
 
 void drawThrobber(int innerRadius, int outerRadius, int degrees){
