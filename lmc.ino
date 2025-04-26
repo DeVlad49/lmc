@@ -151,23 +151,23 @@ void loop() {
     matrix.fillScreen(LOW);
     switch(mode){
       case 0:
-        Serial.println(timeBuffer);
+        if (VERBOSE_BUFFERS) Serial.println(timeBuffer);
         displayCentredText(String(timeBuffer));
         break;
       case 1:
-        Serial.println(dateBuffer);
+        if (VERBOSE_BUFFERS) Serial.println(dateBuffer);
         displayCentredText(String(dateBuffer));
         break;
       case 2:
-        Serial.println(tempBuffer);
+        if (VERBOSE_BUFFERS) Serial.println(tempBuffer);
         displayCentredText(String(tempBuffer));
         break;
       case 3:
-        Serial.println(humiBuffer);
+        if (VERBOSE_BUFFERS) Serial.println(humiBuffer);
         displayCentredText(String(humiBuffer));
         break;
       default:
-        Serial.println("Err");
+        if (VERBOSE_BUFFERS) Serial.println("Err");
         displayCentredText(String("Err"));
         break;
     }

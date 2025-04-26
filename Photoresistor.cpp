@@ -63,9 +63,11 @@ bool Photoresistor::isCoveredInLessThanTimePeriod(unsigned long timePeriod, bool
     }
   }
   else if (isDark() && m_covered){
-    if (verbose) Serial.print("Covered: ");
+    if (verbose){
+      Serial.print("Covered: ");
       Serial.print(read());
       Serial.println(" ; Won't react.");
+    }
   }
   else if (!isDark() && m_covered){
     m_covered = false;
