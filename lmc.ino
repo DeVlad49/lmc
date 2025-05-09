@@ -158,23 +158,23 @@ void loop() {
     switch(mode){
       case 0:
         if (VERBOSE_BUFFERS) Serial.println(timeBuffer);
-        displayCentredText(String(timeBuffer));
+        displayCentredText(timeBuffer);
         break;
       case 1:
         if (VERBOSE_BUFFERS) Serial.println(dateBuffer);
-        displayCentredText(String(dateBuffer));
+        displayCentredText(dateBuffer);
         break;
       case 2:
         if (VERBOSE_BUFFERS) Serial.println(tempBuffer);
-        displayCentredText(String(tempBuffer));
+        displayCentredText(tempBuffer);
         break;
       case 3:
         if (VERBOSE_BUFFERS) Serial.println(humiBuffer);
-        displayCentredText(String(humiBuffer));
+        displayCentredText(humiBuffer);
         break;
       default:
         if (VERBOSE_BUFFERS) Serial.println("Err");
-        displayCentredText(String("Err"));
+        displayCentredText("Err");
         break;
     }
     lastMode = mode;
@@ -185,8 +185,8 @@ void loop() {
   matrix.write();
 }
 
-void displayCentredText(String str){
-  int strLen = str.length();
+void displayCentredText(char* str){
+  int strLen = strlen(str);
   int clockWidth = width * strLen;
   int x = (matrix.width() - clockWidth) / 2;
 
