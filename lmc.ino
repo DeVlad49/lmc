@@ -18,7 +18,7 @@
 #define LED_PIN 8 // D13 is already used by SPI, so choose different OUTPUT pin
 
 // For the light sensor
-#define BRIGHTNESS_DROP_PERCENTAGE 20
+#define BRIGHTNESS_DROP_PERCENTAGE 80
 #define REGULAR_THRESHOLD_UPDATE_PERIOD 20000
 #define COVERING_TIME_PERIOD 1000
 #define VERBOSE_PHOTORESISTOR false
@@ -104,7 +104,7 @@ void loop() {
   time_t t = now();
   sprintf(timeBuffer, "%02d:%02d", hour(t), minute(t));
 //    sprintf(secondsBuffer, "%02d s", second(t));
-  sprintf(dateBuffer, "%02d.%02d.%04d", day(t), month(t), year(t));
+  sprintf(dateBuffer, "%02d.%02d", day(t), month(t));
 
   // Store formatted temperature and humidity
   int chk = DHT.read11(DHT11_PIN);
