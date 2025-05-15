@@ -55,6 +55,7 @@ char dateBuffer[11];
 char tempBuffer[6];
 char humiBuffer[6];
 #define VERBOSE_BUFFERS true
+char currentBuffer[11];
 
 // Objects
 Metronome mtm(MODE_SWITCH_DELAY);
@@ -148,38 +149,34 @@ void loop() {
   if(mode>3){
     mode = 0;
   }
-
   if (mode != lastMode){
     changeMode = true;
   }
 
-  if (changeMode){
-    matrix.fillScreen(LOW);
-    switch(mode){
-      case 0:
-        if (VERBOSE_BUFFERS) Serial.println(timeBuffer);
-        displayCentredText(timeBuffer);
-        break;
-      case 1:
-        if (VERBOSE_BUFFERS) Serial.println(dateBuffer);
-        displayCentredText(dateBuffer);
-        break;
-      case 2:
-        if (VERBOSE_BUFFERS) Serial.println(tempBuffer);
-        displayCentredText(tempBuffer);
-        break;
-      case 3:
-        if (VERBOSE_BUFFERS) Serial.println(humiBuffer);
-        displayCentredText(humiBuffer);
-        break;
-      default:
-        if (VERBOSE_BUFFERS) Serial.println("Err");
-        displayCentredText("Err");
-        break;
-    }
-    lastMode = mode;
-    changeMode = false;
+  matrix.fillScreen(LOW);
+  switch(mode){
+    case 0:
+      strcpy(currentBuffer, timeBuffer);
+      break;
+    case 1:
+      strcpy(currentBuffer, dateBuffer);
+      break;
+    case 2:
+      strcpy(currentBuffer, tempBuffer);
+      break;
+    case 3:
+      strcpy(currentBuffer, humiBuffer);
+      break;
+    default:
+      strcpy(currentBuffer, "Err");
+      break;
   }
+  displayCentredText(currentBuffer);
+  if (VERBOSE_BUFFERS && mode != lastMode){
+    Serial.println(currentBuffer);
+  }
+  lastMode = mode;
+  changeMode = false;
   
   // Send bitmap to display
   matrix.write();
