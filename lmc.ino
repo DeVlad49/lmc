@@ -73,9 +73,11 @@ void setup() {
   rtc.begin();
 
   // Set time on system &  RTC
-  // Uncomment two lines below to set time
+  // Use a separate sketch for setting the time or
+  // uncomment the two lines below (but do not forget 
+  // to upload the sketch the second time with these lines commented out).
 
-//   setTime(14, 57, 0, 20, 3, 25); // setTime(int hr,int min,int sec,int day, int month, int yr);
+//   setTime(12, 47, 0, 16, 5, 25); // setTime(int hr,int min,int sec,int day, int month, int yr);
 //   rtc.set(now());
 
   // Synchronise system time with RTC time
