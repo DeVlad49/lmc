@@ -1,8 +1,5 @@
 # LED Matrix Clock project
 
-## Project notes
-See [here](https://docs.google.com/document/d/1wKCPI0wZZf8HCPCKJa1tOnIjr6q0EguBgRXOC0Ul9gY/edit?usp=sharing).
-
 ## Components:
 * 4 LED matrix 1088AS (with MAX7219 driver)
 
