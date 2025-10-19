@@ -12,8 +12,6 @@
 
 ## External libraries
 
-### For LED matrix
-
 * [Max72xxPanel](https://github.com/markruys/arduino-Max72xxPanel)
 * [Adafruit GFX](https://github.com/adafruit/Adafruit-GFX-Library) (used in the aforementioned library)
 * [DHTlib](https://github.com/RobTillaart/DHTlib)
